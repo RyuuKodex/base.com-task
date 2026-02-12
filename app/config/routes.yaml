@@ -1,5 +1,5 @@
 controllers:
-  resource: ../src/Controller/
+  resource: ../src/Order/Presentation/Controller/
   type: attribute
 
 kernel:

@@ -1,8 +1,13 @@
 parameters:
+    baselinker_api_token: '%env(BASELINKER_API_TOKEN)%'
+
 services:
   _defaults:
     autowire: true
     autoconfigure: true
+    bind:
+      $apiToken: '%baselinker_api_token%'
+
   App\:
     resource: '../src/'
     exclude:
@@ -10,3 +15,21 @@ services:
       - '../src/Entity/'
       - '../src/Migrations/'
       - '../src/Kernel.php'
+      - '../src/Order/Domain/Model/'
+
+  App\Order\Domain\Strategy\MarketplaceStrategyRegistry:
+    arguments:
+      $strategies: !tagged_iterator app.marketplace_strategy
+
+  _instanceof:
+    App\Order\Domain\Strategy\MarketplaceStrategyInterface:
+      tags: ['app.marketplace_strategy']
+
+  App\Order\Infrastructure\Baselinker\BaselinkerClientInterface:
+    alias: App\Order\Infrastructure\Baselinker\BaselinkerClient
+
+  App\Order\Domain\Repository\BaselinkerOrderRepositoryInterface:
+    alias: App\Order\Infrastructure\Baselinker\BaselinkerOrderRepository
+
+  App\Order\Domain\Repository\OrderRepositoryInterface:
+    alias: App\Order\Infrastructure\Persistence\Doctrine\DoctrineOrderRepository

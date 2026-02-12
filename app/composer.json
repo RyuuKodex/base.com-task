@@ -6,7 +6,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": "8.4.*",
+        "php": "^8.3",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
@@ -17,8 +17,12 @@
         "symfony/flex": "^2",
         "symfony/framework-bundle": "*",
         "symfony/http-client": "*",
+        "symfony/messenger": "8.0.*",
         "symfony/monolog-bundle": "^4.0",
         "symfony/runtime": "*",
+        "symfony/serializer": "8.0.*",
+        "symfony/uid": "8.0.*",
+        "symfony/validator": "8.0.*",
         "symfony/yaml": "*"
     },
     "require-dev": {
@@ -28,6 +32,7 @@
         "phpstan/phpstan-phpunit": "^1.1",
         "phpstan/phpstan-symfony": "^1.1",
         "phpunit/phpunit": "^9.0",
+        "symfony/maker-bundle": "^1.66",
         "symfony/phpunit-bridge": "*",
         "symfony/stopwatch": "*",
         "symfony/twig-bundle": "8.0.*",
@@ -75,14 +80,16 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
-        "run-unit-tests": "php bin/phpunit --do-not-cache-result --testsuite unit",
-        "run-functional-tests": "php bin/phpunit --do-not-cache-result --testsuite functional",
+        "run-unit-tests": "APP_ENV=test php bin/phpunit --do-not-cache-result --testsuite unit",
+        "run-functional-tests": "APP_ENV=test php bin/phpunit --do-not-cache-result --testsuite functional",
+        "run-integration-tests": "APP_ENV=test php bin/phpunit --do-not-cache-result --testsuite integration",
         "run-lint-check": "./vendor/bin/php-cs-fixer fix --dry-run --using-cache no",
-        "run-lint-fix": "./vendor/bin/php-cs-fixer fix",
+        "run-lint-fix": "./vendor/bin/php-cs-fixer fix --allow-risky=yes",
         "run-phpstan-analysis": "./vendor/bin/phpstan analyse",
         "run-all-tests": [
             "@run-unit-tests",
-            "@run-functional-tests"
+            "@run-functional-tests",
+            "@run-integration-tests"
         ]
     },
     "conflict": {

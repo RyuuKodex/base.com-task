@@ -1,41 +1,40 @@
-# Symfony project bootstrap
+# Baselinker Integration Module
 
-Modern Symfony (PHP) project template created in order to follow [12-Factor-App](https://12factor.net) principles. Great
-starter for small, medium and large projects.
+## About The Project
 
-## Motivation
+Integration module for helpdesk system that connects to Baselinker API, allowing to fetch and process orders from multiple marketplaces (Allegro, Amazon, eBay, etc.).
 
-While working in few major IT companies in Poland, I saw how many people are struggling with creating simple, yet
-effective work environment. Sometimes people were just following Symfony Docs - they of course are good for learning,
-however they are not following the [12-Factor-App](https://12factor.net) recommendations. Also, the way how Symfony
-recommends using Docker is far from perfect, hence I created this bootstrap.
+### Features
 
-## PHP, Symfony and the database
+- **Baselinker API Integration**: Fetching orders and detailed order data.
+- **Marketplace Specific Processing**: Strategy pattern for handling different marketplace data (Allegro, Amazon, eBay).
+- **Queued Processing**: Using Symfony Messenger for scalable order synchronization.
+- **Monitoring & Logging**: Performance tracking (request duration) and error logging via Decorator pattern.
+- **Filtering**: Ability to list and filter processed orders via API.
 
-This project is using PHP in version **8.3** and Symfony framework with version **^6.3**.  Also, the MySQL in version
-**8.2.0** is used.
+### Built With
 
-I update this repository regularly to match next PHP and Symfony versions.
+- [PHP 8.3](https://www.php.net/)
+- [Symfony 8.0](https://symfony.com/)
+- [MySQL 8.2](https://www.mysql.com/)
+- [Docker](https://www.docker.com/)
+- [Messenger](https://symfony.com/doc/current/messenger.html)
 
-## Required tools
+## Getting Started
 
-Before we start, let's make sure that our host device has required programs. We will use `docker` and `docker compose`
-to manage containers.
+### Installation
 
-To create this bootstrap I used the tools in version listed below. I cannot guarantee that this configuration will work
-automatically with newer versions.
+Follow these simple steps
 
-```shell
-docker --version
-> Docker version 20.10.17, build 100c701
+#### Clone repository
 
-docker compose version
-> Docker Compose version v2.6.1
+```bash
+git clone git@github.com:RyuuKodex/base.com---task.git
 ```
 
 ## Building environment for development
 
-First things first you have to copy the development environment template. It' located in `.devcontainer`, I'd reccomend
+First things first you have to copy the development environment template. It's located in `.devcontainer`, I'd recommend
 to leave it there and create a symbolic link.
 
 ```shell
@@ -60,82 +59,89 @@ folder with empty one (repository has no `vendor` folder intentionally). So, we 
 configuration:
 
 ```shell
-docker compose exec app sh -ce "
+docker compose exec app bash -ce "
     composer install
     chown -R $(id -u):$(id -g) .
   "
 ```
 
-Now you're all set, you can visit the [localhost with port 80](http://localhost), you should
-see the Symfony default application web page.
+Configure your `.env` file with Baselinker API token:
 
-Also, a GET endpoint [/api/hello-world](http://localhost/api/hello-world) was added to configure and show the functional
-test environment. It will always return static data:
-```json
-{
-  "message": "Hello, world"
-}
+```bash
+# app/.env
+BASELINKER_API_TOKEN=your_token_here
 ```
 
-If for some reason you'd like to enter the container, use the command below.
+Now you're all set, you can visit [localhost](http://localhost), you should
+see the Symfony default application web page.
 
-```shell
+# Endpoints & Commands
+
+### API Endpoints
+
+#### List Orders
+```http
+  GET /api/orders?marketplace=<marketplace>&limit=<limit>&offset=<offset>
+
+  Parameters:
+  - marketplace (optional): allegro, amazon, ebay, other
+  - limit (optional): default 10
+  - offset (optional): default 0
+```
+
+### Console Commands
+
+#### Synchronize Orders
+Synchronizes all orders from Baselinker API and puts them into the processing queue.
+```bash
+docker compose exec app bin/console app:orders:sync
+```
+
+## Maintenance Commands
+
+#### Start the project
+```bash
+docker compose up -d
+```
+
+#### Connect to app container
+```bash
 docker compose exec app bash
 ```
 
-## Removing local environment
-
-You can remove local environment using the command below:
-
-```shell
+#### Stop project
+```bash
 docker compose down --remove-orphans
 ```
 
-## Assumptions
-
-### Custom PHP image
-
-In the main Dockerfile I used [caddy-php](https://github.com/at-cloud-pro/caddy-php-image): my own high-performance PHP
-image that uses Caddy as a runner and php-fpm as a daemon.
-
-```dockerfile
-FROM ghcr.io/at-cloud-pro/caddy-php:5.0.0 AS app
+#### CS-fixer
+```bash
+docker compose exec app composer run-lint-fix
 ```
 
-You're free to change it to any image and configuration you'd like. You may read
-[here](https://github.com/at-cloud-pro/caddy-php-image/README.md) what's bundled inside my image and create your own
-with my approach as a guidelines.
-
-### Application logs
-
-Due to extensive configuration you will find all the logs stored in `./app/var/log` folder, including Caddy, php-fpm
-access and error logs and xdebug outputs. Also files like `dev.log`, `prod.log` will be stored with all the messages
-logged with PSR `LoggerInterface` and `monolog` package.
+#### PHP-Stan
+```bash
+docker compose exec app composer run-phpstan-analysis
+```
 
 ### Testing
 
-Modern web applications must be well tested. To keep things simple I prepared ready to use suite for unit and functional
-tests.
-
-#### Unit
-Use the command below to run unit tests. Initially this project contains
-[one test](https://github.com/oskarbarcz/symfony-bootstrap/app/tests/NullTest.php) with one assertion
-(NullTest pattern).
-
-```
+#### Unit Tests
+```bash
 docker compose exec app composer run-unit-tests
 ```
 
-#### Functional
-
-Use the command below to run functional tests:
-
+#### Integration Tests
+```bash
+docker compose exec app composer run-integration-tests
 ```
+
+#### Functional Tests
+```bash
 docker compose exec app composer run-functional-tests
 ```
 
-Functional test is testing here the hello-world endpoint.
-
-## Troubleshooting
-
-This section will be expanded as first problem will come.
+#### Run All Tests
+```bash
+docker compose exec app composer run-all-tests
+```
