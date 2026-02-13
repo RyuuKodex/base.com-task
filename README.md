@@ -91,6 +91,12 @@ see the Symfony default application web page.
 
 ### Console Commands
 
+#### Database Migrations
+Runs all pending database migrations.
+```bash
+docker compose exec app bin/console d:m:m
+```
+
 #### Synchronize Orders
 Synchronizes all orders from Baselinker API and puts them into the processing queue.
 ```bash
